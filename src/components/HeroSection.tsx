@@ -643,7 +643,7 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
                     <div className="squiggle-arrow">
                       <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M18 10 L25 2 L32 10" stroke="var(--cyan)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" className="squiggle-head" />
-                        <path d="M25 4 C25 8, 32 16, 25 24 C8 38, 44 48, 25 50" stroke="var(--cyan)" strokeWidth="2.5" strokeLinecap="round" fill="none" className="squiggle-path" />
+                        <path d="M25 50 C44 48, 8 38, 25 24 C32 16, 25 8, 25 4" stroke="var(--cyan)" strokeWidth="2.5" strokeLinecap="round" fill="none" className="squiggle-path" />
                       </svg>
                     </div>
                     <div className="pricing-term-bar">
