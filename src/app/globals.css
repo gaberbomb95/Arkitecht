@@ -56,27 +56,83 @@ body.dark-mode .nav-logo svg path,
 body.dark-mode .nav-logo svg circle { stroke: #e8e8e6; fill: none; }
 body.dark-mode .nav-logo svg circle { fill: #e8e8e6; }
 body.dark-mode .keyboard-wrap {
-  background: linear-gradient(180deg, #2a2a2f 0%, #222226 50%, #1c1c20 100%);
-  border-color: rgba(255,255,255,0.08);
-  box-shadow: 0 8px 0 #151518, 0 10px 0 #111114, 0 12px 30px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.06) inset;
+  background:
+    repeating-linear-gradient(90deg, transparent, transparent 1px, rgba(255,255,255,0.008) 1px, rgba(255,255,255,0.008) 2px),
+    linear-gradient(180deg, #2c2c31 0%, #252529 20%, #202024 50%, #1c1c20 80%, #18181c 100%);
+  border-color: rgba(0,240,255,0.06);
+  border-top-color: rgba(255,255,255,0.06);
+  box-shadow:
+    0 4px 0 #141417,
+    0 5px 0 #131315,
+    0 6px 0 #121214,
+    0 7px 0 #111113,
+    0 8px 0 #101012,
+    0 9px 0 #0f0f11,
+    0 10px 0 #0e0e10,
+    0 12px 24px rgba(0,0,0,0.5),
+    /* RGB underglow */
+    0 14px 30px rgba(0,240,255,0.08),
+    0 16px 50px rgba(0,240,255,0.04),
+    /* Internal */
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    1px 0 0 rgba(0,240,255,0.03) inset,
+    -1px 0 0 rgba(0,240,255,0.03) inset,
+    0 -1px 0 rgba(0,240,255,0.06) inset;
+}
+body.dark-mode .keyboard-wrap::before {
+  background: rgba(0,0,0,0.08);
+  border-color: rgba(0,240,255,0.03);
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,0.1),
+    inset 0 -1px 0 rgba(255,255,255,0.02);
+}
+body.dark-mode .keyboard-wrap::after {
+  background: linear-gradient(180deg, #222226, #1a1a1e);
+  border-color: rgba(0,240,255,0.08);
+  box-shadow:
+    inset 0 2px 3px rgba(0,0,0,0.25),
+    0 0 4px rgba(0,240,255,0.1);
 }
 body.dark-mode .kb-key {
-  background: linear-gradient(180deg, #333338 0%, #2a2a2f 40%, #242428 100%);
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 38%, rgba(255,255,255,0.04) 0%, transparent 65%),
+    linear-gradient(180deg, #333338 0%, #2c2c31 30%, #27272b 60%, #242428 100%);
   border-color: rgba(0,240,255,0.08);
+  border-top-color: rgba(255,255,255,0.04);
   border-bottom-color: rgba(0,240,255,0.06);
-  box-shadow: 0 4px 0 #18181b, 0 5px 2px rgba(0,0,0,0.2), 0 0 6px rgba(0,240,255,0.04), 0 1px 0 rgba(0,240,255,0.06) inset;
+  box-shadow:
+    0 4px 0 #16161a,
+    0 5px 2px rgba(0,0,0,0.2),
+    0 0 6px rgba(0,240,255,0.03),
+    inset 0 1px 2px rgba(0,240,255,0.04),
+    inset 0 -1px 2px rgba(0,0,0,0.15),
+    inset 1px 0 1px rgba(0,0,0,0.05),
+    inset -1px 0 1px rgba(0,0,0,0.05);
   color: rgba(0,240,255,0.45);
   text-shadow: 0 0 6px rgba(0,240,255,0.2);
 }
 body.dark-mode .kb-key.pressed {
-  background: linear-gradient(180deg, #2a2a2f 0%, #242428 100%);
-  box-shadow: 0 1px 0 #18181b, 0 1px 1px rgba(0,0,0,0.15), 0 1px 0 rgba(0,240,255,0.04) inset;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 45%, rgba(0,240,255,0.02) 0%, transparent 65%),
+    linear-gradient(180deg, #2a2a2f 0%, #242428 100%);
+  box-shadow:
+    0 1px 0 #16161a,
+    0 1px 1px rgba(0,0,0,0.15),
+    inset 0 2px 4px rgba(0,0,0,0.2),
+    inset 0 -1px 1px rgba(0,240,255,0.03);
   color: rgba(0,240,255,0.6);
 }
 body.dark-mode .kb-key.neon-fade {
-  box-shadow: 0 4px 0 #18181b, 0 5px 2px rgba(0,0,0,0.2), 0 0 6px rgba(0,240,255,0.04), 0 1px 0 rgba(0,240,255,0.06) inset;
+  box-shadow:
+    0 4px 0 #16161a,
+    0 5px 2px rgba(0,0,0,0.2),
+    0 0 6px rgba(0,240,255,0.03),
+    inset 0 1px 2px rgba(0,240,255,0.04),
+    inset 0 -1px 2px rgba(0,0,0,0.15);
   border-color: rgba(0,240,255,0.08);
-  background: linear-gradient(180deg, #333338 0%, #2a2a2f 40%, #242428 100%);
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 38%, rgba(255,255,255,0.04) 0%, transparent 65%),
+    linear-gradient(180deg, #333338 0%, #2c2c31 30%, #27272b 60%, #242428 100%);
 }
 body.dark-mode .monitor {
   background: #1e1e22;
@@ -1048,61 +1104,124 @@ body.dark-mode .m-base {
   transform-origin: center bottom;
   will-change: transform;
   width: 100%; max-width: 1100px;
-  padding: 21px 18px 18px;
-  background: linear-gradient(180deg, #d4d4d0 0%, #c8c8c3 50%, #bcbcb7 100%);
-  border-radius: 15px;
-  border: 1px solid rgba(0,0,0,0.12);
+  padding: 26px 22px 16px;
+  /* Brushed aluminum chassis */
+  background:
+    repeating-linear-gradient(90deg, transparent, transparent 1px, rgba(255,255,255,0.02) 1px, rgba(255,255,255,0.02) 2px),
+    linear-gradient(180deg, #d2d2ce 0%, #c8c8c4 15%, #c0c0bc 40%, #b8b8b4 70%, #b0b0ac 100%);
+  border-radius: 12px 12px 16px 16px;
+  border: 1px solid rgba(0,0,0,0.14);
+  border-top: 1.5px solid rgba(255,255,255,0.45);
   box-shadow:
-    0 8px 0 #a8a8a3,
-    0 10px 0 #9e9e99,
-    0 12px 30px rgba(0,0,0,0.2),
-    0 1px 0 rgba(255,255,255,0.5) inset;
+    /* Multi-layer 3D depth — chamfered taper */
+    0 4px 0 #a6a6a1,
+    0 5px 0 #a1a19c,
+    0 6px 0 #9c9c97,
+    0 7px 0 #979792,
+    0 8px 0 #92928d,
+    0 9px 0 #8d8d88,
+    0 10px 0 #888883,
+    0 12px 24px rgba(0,0,0,0.22),
+    /* Top edge polish */
+    0 1px 0 rgba(255,255,255,0.55) inset,
+    /* Side chamfer highlights */
+    1px 0 0 rgba(255,255,255,0.12) inset,
+    -1px 0 0 rgba(255,255,255,0.12) inset,
+    /* Bottom inner shadow */
+    0 -1px 3px rgba(0,0,0,0.03) inset;
+}
+/* Inset key tray */
+.keyboard-wrap::before {
+  content: '';
+  position: absolute;
+  top: 18px; left: 16px; right: 16px; bottom: 10px;
+  background: rgba(0,0,0,0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.04);
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,0.05),
+    inset 0 -1px 0 rgba(255,255,255,0.25);
+  pointer-events: none;
+  z-index: 0;
+}
+/* USB-C port on back edge */
+.keyboard-wrap::after {
+  content: '';
+  position: absolute;
+  top: -1px; left: 50%;
+  transform: translateX(-50%);
+  width: 22px; height: 5px;
+  background: linear-gradient(180deg, #888886, #7a7a78);
+  border-radius: 0 0 4px 4px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-top: none;
+  box-shadow: inset 0 2px 3px rgba(0,0,0,0.15);
+  z-index: 6;
 }
 .kb-row {
   display: flex; gap: 4px; justify-content: center; margin-bottom: 4px;
+  position: relative; z-index: 1;
 }
 .kb-row:last-child { margin-bottom: 0; }
+/* Function row separation */
+.kb-row:first-child { margin-bottom: 12px; }
 .kb-key {
   height: 35px; min-width: 35px; padding: 0 6px;
-  border-radius: 5px 5px 6px 6px;
-  background: linear-gradient(180deg, #f5f5f3 0%, #eaeae7 40%, #e0e0dc 100%);
-  border: 1px solid rgba(0,0,0,0.12);
-  border-bottom: 3px solid rgba(0,0,0,0.15);
+  border-radius: 4px 4px 5px 5px;
+  /* Concave keycap — dished surface with radial highlight */
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 38%, rgba(255,255,255,0.45) 0%, transparent 65%),
+    linear-gradient(180deg, #f0f0ee 0%, #e8e8e5 30%, #e2e2df 60%, #dbdbd8 100%);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-top: 1px solid rgba(255,255,255,0.35);
+  border-bottom: 3px solid rgba(0,0,0,0.13);
   box-shadow:
-    0 4px 0 #b5b5b0,
-    0 5px 2px rgba(0,0,0,0.12),
-    0 1px 0 rgba(255,255,255,0.8) inset,
-    inset 0 -1px 2px rgba(0,0,0,0.04);
+    0 4px 0 #adada8,
+    0 5px 2px rgba(0,0,0,0.1),
+    /* Concave dish sculpting */
+    inset 0 1px 2px rgba(255,255,255,0.7),
+    inset 0 -1px 2px rgba(0,0,0,0.05),
+    inset 1px 0 1px rgba(0,0,0,0.02),
+    inset -1px 0 1px rgba(0,0,0,0.02);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--mono); font-size: 8px; font-weight: 600;
-  color: rgba(26,26,26,0.5);
+  color: rgba(26,26,26,0.45);
   flex-shrink: 0; user-select: none; letter-spacing: -0.01em;
   pointer-events: auto; cursor: pointer;
   opacity: 0;
   transform: translateY(12px) scale(0.8);
   transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.1s, background 0.15s, border 0.1s, color 0.15s;
+  position: relative; z-index: 1;
 }
 .kb-key.placed { opacity: 1; transform: translateY(0) scale(1); }
 .kb-key.pressed {
-  background: linear-gradient(180deg, #eaeae7 0%, #e0e0dc 100%);
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 45%, rgba(255,255,255,0.3) 0%, transparent 65%),
+    linear-gradient(180deg, #e6e6e3 0%, #deded8 100%);
   box-shadow:
-    0 1px 0 #b5b5b0,
-    0 1px 1px rgba(0,0,0,0.08),
-    0 1px 0 rgba(255,255,255,0.6) inset;
-  border-bottom: 1px solid rgba(0,0,0,0.12);
+    0 1px 0 #adada8,
+    0 1px 1px rgba(0,0,0,0.06),
+    inset 0 2px 4px rgba(0,0,0,0.06),
+    inset 0 -1px 1px rgba(255,255,255,0.4);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-top: 1px solid rgba(0,0,0,0.06);
   transform: translateY(3px) scale(1);
-  color: rgba(26,26,26,0.7);
+  color: rgba(26,26,26,0.65);
 }
 /* Click highlight — matches CTA glow */
 .kb-key.click-glow {
-  background: linear-gradient(180deg, rgba(200,252,255,0.9) 0%, rgba(180,248,255,0.8) 100%);
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 40%, rgba(255,255,255,0.5) 0%, transparent 65%),
+    linear-gradient(180deg, rgba(200,252,255,0.9) 0%, rgba(180,248,255,0.8) 100%);
   border-color: rgba(0,200,220,0.35);
+  border-top-color: rgba(200,252,255,0.5);
   border-bottom: 3px solid rgba(0,180,200,0.3);
   box-shadow:
     0 4px 0 rgba(0,160,180,0.25),
     0 5px 8px rgba(0,240,255,0.2),
     0 0 12px rgba(0,240,255,0.15),
-    0 1px 0 rgba(255,255,255,0.8) inset;
+    inset 0 1px 2px rgba(255,255,255,0.8),
+    inset 0 -1px 2px rgba(0,180,200,0.1);
   color: rgba(0,120,140,0.7);
   transform: translateY(1px) scale(1);
   transition: all 0.15s ease;
@@ -1112,17 +1231,27 @@ body.dark-mode .m-base {
     0 4px 0 rgba(0,180,200,0.4),
     0 5px 12px rgba(0,240,255,0.3),
     0 0 16px rgba(0,240,255,0.25),
-    0 1px 0 rgba(255,255,255,0.8) inset;
+    inset 0 1px 2px rgba(255,255,255,0.8),
+    inset 0 -1px 2px rgba(0,180,200,0.15);
   border-color: rgba(0,240,255,0.3);
   border-bottom-color: rgba(0,240,255,0.4);
-  background: linear-gradient(180deg, rgba(220,252,255,0.9) 0%, rgba(200,248,255,0.8) 100%);
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 40%, rgba(255,255,255,0.5) 0%, transparent 65%),
+    linear-gradient(180deg, rgba(220,252,255,0.9) 0%, rgba(200,248,255,0.8) 100%);
   transition: box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease;
 }
 .kb-key.neon-fade {
-  box-shadow: 0 4px 0 #b5b5b0, 0 5px 2px rgba(0,0,0,0.12), 0 1px 0 rgba(255,255,255,0.8) inset, inset 0 -1px 2px rgba(0,0,0,0.04);
-  border-color: rgba(0,0,0,0.12);
-  border-bottom-color: rgba(0,0,0,0.15);
-  background: linear-gradient(180deg, #f5f5f3 0%, #eaeae7 40%, #e0e0dc 100%);
+  box-shadow:
+    0 4px 0 #adada8,
+    0 5px 2px rgba(0,0,0,0.1),
+    inset 0 1px 2px rgba(255,255,255,0.7),
+    inset 0 -1px 2px rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.1);
+  border-top-color: rgba(255,255,255,0.35);
+  border-bottom-color: rgba(0,0,0,0.13);
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 38%, rgba(255,255,255,0.45) 0%, transparent 65%),
+    linear-gradient(180deg, #f0f0ee 0%, #e8e8e5 30%, #e2e2df 60%, #dbdbd8 100%);
   transition: box-shadow 1.2s ease, border-color 1.2s ease, background 1.2s ease;
 }
 .kb-key.w-1-25 { min-width: 44px; }
@@ -1135,13 +1264,17 @@ body.dark-mode .m-base {
 /* ====== CTA KEYS — 3D ====== */
 .kb-key.cta-space {
   flex: 1; max-width: 285px; min-width: 165px;
-  background: linear-gradient(180deg, rgba(200,252,255,0.9) 0%, rgba(180,248,255,0.8) 40%, rgba(160,244,255,0.7) 100%);
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 38%, rgba(255,255,255,0.4) 0%, transparent 65%),
+    linear-gradient(180deg, rgba(200,252,255,0.9) 0%, rgba(180,248,255,0.8) 40%, rgba(160,244,255,0.7) 100%);
   border: 1.5px solid rgba(0,200,220,0.35);
+  border-top: 1.5px solid rgba(200,252,255,0.5);
   border-bottom: 3px solid rgba(0,180,200,0.3);
   box-shadow:
     0 4px 0 rgba(0,160,180,0.25),
     0 5px 8px rgba(0,240,255,0.15),
-    0 1px 0 rgba(255,255,255,0.8) inset;
+    inset 0 1px 2px rgba(255,255,255,0.8),
+    inset 0 -1px 2px rgba(0,180,200,0.08);
   color: rgba(0,120,140,0.7);
   font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
   pointer-events: auto; cursor: pointer; position: relative; overflow: hidden;
@@ -1164,13 +1297,17 @@ body.dark-mode .m-base {
 }
 .kb-key.cta-enter {
   min-width: 80px; height: 35px;
-  background: linear-gradient(180deg, rgba(190,252,255,0.95) 0%, rgba(170,248,255,0.85) 40%, rgba(150,244,255,0.75) 100%);
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 38%, rgba(255,255,255,0.35) 0%, transparent 65%),
+    linear-gradient(180deg, rgba(190,252,255,0.95) 0%, rgba(170,248,255,0.85) 40%, rgba(150,244,255,0.75) 100%);
   border: 1.5px solid rgba(0,200,220,0.4);
+  border-top: 1.5px solid rgba(190,252,255,0.5);
   border-bottom: 3px solid rgba(0,180,200,0.35);
   box-shadow:
     0 4px 0 rgba(0,160,180,0.3),
     0 5px 8px rgba(0,240,255,0.15),
-    0 1px 0 rgba(255,255,255,0.8) inset;
+    inset 0 1px 2px rgba(255,255,255,0.8),
+    inset 0 -1px 2px rgba(0,180,200,0.08);
   color: rgba(0,120,140,0.75);
   font-size: 8px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
   pointer-events: auto; cursor: pointer; position: relative; overflow: hidden;
@@ -1202,22 +1339,88 @@ body.dark-mode .m-base {
 }
 
 @media (max-width: 900px) {
-  .keyboard-wrap { transform: perspective(1000px) rotateX(28deg) scale(1.08); padding: 14px 10px 10px; }
-  .keyboard-wrap { box-shadow: 0 5px 0 #a8a8a3, 0 7px 20px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.5) inset; }
-  .kb-key { height: 27px; min-width: 27px; font-size: 7px; border-radius: 4px 4px 5px 5px; padding: 0 3px; border-bottom-width: 2px; box-shadow: 0 3px 0 #b5b5b0, 0 4px 2px rgba(0,0,0,0.1), 0 1px 0 rgba(255,255,255,0.8) inset; }
+  .keyboard-wrap {
+    transform: perspective(1000px) rotateX(28deg) scale(1.08);
+    padding: 18px 12px 10px;
+    box-shadow:
+      0 3px 0 #a6a6a1,
+      0 4px 0 #a1a19c,
+      0 5px 0 #9c9c97,
+      0 6px 0 #979792,
+      0 7px 20px rgba(0,0,0,0.18),
+      0 1px 0 rgba(255,255,255,0.5) inset;
+  }
+  .keyboard-wrap::after { width: 18px; height: 4px; }
+  .kb-key {
+    height: 27px; min-width: 27px; font-size: 7px;
+    border-radius: 3px 3px 4px 4px; padding: 0 3px;
+    border-bottom-width: 2px;
+    box-shadow:
+      0 3px 0 #adada8,
+      0 4px 2px rgba(0,0,0,0.08),
+      inset 0 1px 1px rgba(255,255,255,0.6),
+      inset 0 -1px 1px rgba(0,0,0,0.04);
+  }
   .kb-key.w-1-25 { min-width: 35px; } .kb-key.w-1-5 { min-width: 41px; }
   .kb-key.w-1-75 { min-width: 48px; } .kb-key.w-2 { min-width: 56px; }
   .kb-key.w-2-25 { min-width: 63px; } .kb-key.w-2-5 { min-width: 69px; }
   .kb-key.cta-space { min-width: 105px; font-size: 7px; }
   .kb-key.cta-enter { min-width: 56px; font-size: 6px; height: 27px; }
   .kb-row { gap: 3px; margin-bottom: 3px; }
+  .kb-row:first-child { margin-bottom: 8px; }
+  .kb-details { margin-bottom: 5px; }
 }
 @media (max-width: 600px) {
   .keyboard-wrap { transform: perspective(900px) rotateX(22deg) scale(0.95); }
-  .kb-key { height: 21px; min-width: 21px; font-size: 5px; border-bottom-width: 2px; box-shadow: 0 2px 0 #b5b5b0, 0 3px 1px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.7) inset; }
+  .keyboard-wrap::after { display: none; }
+  .kb-key {
+    height: 21px; min-width: 21px; font-size: 5px;
+    border-bottom-width: 2px;
+    box-shadow:
+      0 2px 0 #adada8,
+      0 3px 1px rgba(0,0,0,0.06),
+      inset 0 1px 1px rgba(255,255,255,0.5);
+  }
   .kb-key.cta-space { min-width: 75px; font-size: 5px; }
   .kb-key.cta-enter { min-width: 44px; font-size: 5px; height: 21px; }
+  .kb-row:first-child { margin-bottom: 6px; }
+  .kb-details { display: none; }
 }
+
+/* ====== KEYBOARD HARDWARE DETAILS ====== */
+.kb-details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 0 4px;
+  position: relative;
+  z-index: 1;
+}
+.kb-status-leds {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.kb-led {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.06);
+  box-shadow: inset 0 0 1px rgba(0,0,0,0.1);
+}
+.kb-led.active { background: rgba(74,222,128,0.5); box-shadow: 0 0 3px rgba(74,222,128,0.25); }
+.kb-brand-mark {
+  font-family: var(--mono);
+  font-size: 5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.08);
+  user-select: none;
+}
+body.dark-mode .kb-led { background: rgba(0,240,255,0.06); box-shadow: none; }
+body.dark-mode .kb-led.active { background: rgba(0,240,255,0.4); box-shadow: 0 0 4px rgba(0,240,255,0.3); }
+body.dark-mode .kb-brand-mark { color: rgba(0,240,255,0.08); }
 
 /* ====== MOUSE ====== */
 .mouse-wrap {

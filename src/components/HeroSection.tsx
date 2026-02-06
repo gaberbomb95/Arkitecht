@@ -396,6 +396,16 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
             </div>
           </div>
 
+          {/* Keyboard hardware details */}
+          <div className="kb-details">
+            <div className="kb-status-leds">
+              <div className="kb-led active" />
+              <div className="kb-led" />
+              <div className="kb-led" />
+            </div>
+            <div className="kb-brand-mark">arkitecht</div>
+          </div>
+
           {/* Keyboard rows */}
           <div className="kb-row">
             <div className="kb-key">esc</div>
