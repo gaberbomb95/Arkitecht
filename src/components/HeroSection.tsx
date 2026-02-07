@@ -674,6 +674,14 @@ export default function HeroSection({ isPricing, showPricing, hidePricing, openM
                       {tab.label}
                     </button>
                   ))}
+                  <div className="browser-brand">
+                    <svg viewBox="0 0 26 26" fill="none">
+                      <path d="M13 1L1.5 7.5v11L13 25l11.5-6.5v-11L13 1z" stroke="currentColor" strokeWidth="1.8" fill="none" />
+                      <path d="M13 1v24M1.5 7.5L13 13.5l11.5-6M1.5 18.5L13 13.5l11.5 5" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
+                      <circle cx="13" cy="13" r="2.5" fill="currentColor" />
+                    </svg>
+                    <span>Arkitecht</span>
+                  </div>
                 </div>
                 <div className="browser-address-bar">
                   <div className="browser-window-controls">
@@ -710,7 +718,7 @@ export default function HeroSection({ isPricing, showPricing, hidePricing, openM
                   <div className={`tab-panel${activeTab === 'home' && !pricingMode ? ' active' : ''}`}>
                     <div className="hero-text" id="heroTextDefault">
                       <div className="monitor-prompt"><span>arkitecht@studio:~$</span> ./build --mode=production</div>
-                      <h1>We <span className="brand-glow">Arch<span className="i-logo-wrap">ı<svg className="i-tesseract" viewBox="0 0 26 26" fill="none"><path d="M13 1L1.5 7.5v11L13 25l11.5-6.5v-11L13 1z" stroke="currentColor" strokeWidth="1.8" fill="none" /><path d="M13 1v24M1.5 7.5L13 13.5l11.5-6M1.5 18.5L13 13.5l11.5 5" stroke="currentColor" strokeWidth="0.8" opacity="0.5" /><circle cx="13" cy="13" r="2.5" fill="currentColor" /></svg></span>tect</span>, Design, and Ship Digital Products</h1>
+                      <h1>We <span className="brand-glow">Architect</span>, Design, and Ship Digital Products</h1>
                       <p>
                         Arkitecht is a full-stack product studio for teams that need world-class software — from first
                         wireframe to global scale. We turn ambitious ideas into production-ready platforms.

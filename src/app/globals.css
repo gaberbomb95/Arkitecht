@@ -1242,6 +1242,26 @@ body, .nav, .monitor, .monitor-chin, .keyboard-wrap, .kb-key, .mouse-body,
   color: rgba(0,0,0,0.35);
   flex-shrink: 0;
 }
+.browser-brand {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  padding-right: 4px;
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.12);
+  text-shadow: 0 0.5px 0 rgba(255,255,255,0.4), 0 -0.3px 0 rgba(0,0,0,0.04);
+}
+.browser-brand svg {
+  width: 10px;
+  height: 10px;
+  color: rgba(0,0,0,0.12);
+}
 /* Center monitor — remove top border-radius from screen since chrome sits above */
 .monitor-unit.center .monitor-screen {
   border-radius: 0 0 6px 6px;
@@ -1348,6 +1368,13 @@ body, .nav, .monitor, .monitor-chin, .keyboard-wrap, .kb-key, .mouse-body,
 .dark-mode .browser-url {
   background: rgba(0,0,0,0.3);
   color: rgba(255,255,255,0.4);
+}
+.dark-mode .browser-brand {
+  color: rgba(0,240,255,0.15);
+  text-shadow: 0 0.5px 0 rgba(255,255,255,0.02), 0 -0.3px 0 rgba(0,0,0,0.4);
+}
+.dark-mode .browser-brand svg {
+  color: rgba(0,240,255,0.15);
 }
 .dark-mode .browser-lock {
   color: rgba(0,240,255,0.4);
@@ -1789,23 +1816,6 @@ body, .nav, .monitor, .monitor-chin, .keyboard-wrap, .kb-key, .mouse-body,
 .brand-glow {
   color: var(--cyan) !important;
   text-shadow: 0 0 8px rgba(0,240,255,0.4), 0 0 16px rgba(0,240,255,0.15);
-}
-/* Tesseract logo as the dot on the "i" in Architect */
-.i-logo-wrap {
-  position: relative;
-  display: inline-block;
-  font-style: normal;
-}
-.i-tesseract {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-55%);
-  top: -0.15em;
-  width: 0.4em;
-  height: 0.4em;
-  color: var(--cyan);
-  filter: drop-shadow(0 0 4px rgba(0,240,255,0.5)) drop-shadow(0 0 10px rgba(0,240,255,0.2));
-  pointer-events: none;
 }
 .monitor-cursor {
   display: inline-block; width: 8px; height: 1.1em;
