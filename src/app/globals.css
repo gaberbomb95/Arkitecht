@@ -717,6 +717,7 @@ body, .nav, .monitor, .monitor-chin, .keyboard-wrap, .kb-key, .mouse-body,
 .monitor {
   position: relative;
   padding: 6px 6px 0;
+  overflow: hidden;
   /* Brushed aluminum bezel texture */
   background:
     repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(255,255,255,0.015) 1px, rgba(255,255,255,0.015) 2px),
