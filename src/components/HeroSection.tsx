@@ -12,9 +12,8 @@ interface HeroSectionProps {
 /* Navigation tabs — swap content inside the center monitor */
 const NAV_TABS = [
   { label: 'Home', target: 'home' },
-  { label: 'Work', target: 'work' },
-  { label: 'Why Us', target: 'whyus' },
   { label: 'Solution', target: 'solution' },
+  { label: 'Why Us', target: 'whyus' },
   { label: 'Services', target: 'services' },
   { label: 'Pricing', target: 'pricing' },
   { label: 'Contact', target: 'contact' },
@@ -49,10 +48,10 @@ export default function HeroSection({ isPricing, showPricing, hidePricing, openM
   /* Scroll spy — only active when monitors are off */
   useEffect(() => {
     if (monitorsOn) return;
-    const sectionIds = ['heroSection', 'validated', 'why-change', 'solution', 'services', 'contact'];
+    const sectionIds = ['heroSection', 'why-change', 'solution', 'differentiation', 'services', 'contact'];
     const tabMap: Record<string, string> = {
-      heroSection: 'home', validated: 'work', 'why-change': 'whyus',
-      solution: 'solution', services: 'services', contact: 'contact',
+      heroSection: 'home', 'why-change': 'solution', solution: 'solution',
+      differentiation: 'whyus', services: 'services', contact: 'contact',
     };
     const handleScroll = () => {
       const heroEl = document.getElementById('heroSection');
@@ -83,8 +82,8 @@ export default function HeroSection({ isPricing, showPricing, hidePricing, openM
     if (!monitorsOn) {
       // Scroll mode — map tab targets to section IDs
       const scrollMap: Record<string, string> = {
-        home: 'heroSection', work: 'validated', whyus: 'why-change',
-        solution: 'solution', services: 'services', pricing: 'heroSection', contact: 'contact',
+        home: 'heroSection', solution: 'why-change', whyus: 'differentiation',
+        services: 'services', pricing: 'heroSection', contact: 'contact',
       };
       const el = document.getElementById(scrollMap[target] || 'heroSection');
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -925,27 +924,34 @@ export default function HeroSection({ isPricing, showPricing, hidePricing, openM
       </div>
 
       {/* Sticky browser tab bar — appears when scrolled past hero */}
-      <div className={`sticky-browser-bar${stickyNav ? ' visible' : ''}`}>
-        <div className="sticky-browser-inner">
-          <div className="sticky-browser-logo">
+      <div className={`sticky-nav${stickyNav ? ' visible' : ''}`}>
+        <div className="sticky-nav-inner">
+          <a href="#" className="sticky-nav-brand" onClick={(e) => { e.preventDefault(); document.getElementById('heroSection')?.scrollIntoView({ behavior: 'smooth' }); }}>
             <svg viewBox="0 0 26 26" fill="none">
               <path d="M13 1L1.5 7.5v11L13 25l11.5-6.5v-11L13 1z" stroke="currentColor" strokeWidth="1.8" fill="none" />
-              <path d="M13 1v24M1.5 7.5L13 13.5l11.5-6M1.5 18.5L13 13.5l11.5 5" stroke="currentColor" strokeWidth="0.8" opacity="0.3" />
+              <path d="M13 1v24M1.5 7.5L13 13.5l11.5-6M1.5 18.5L13 13.5l11.5 5" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
               <circle cx="13" cy="13" r="2.5" fill="currentColor" />
             </svg>
-          </div>
-          <div className="sticky-browser-tabs">
+            <span>Arkitecht</span>
+          </a>
+          <nav className="sticky-nav-links">
             {NAV_TABS.filter((tab) => tab.target !== 'pricing').map((tab) => (
               <button
                 key={tab.target}
-                className={`sticky-tab${activeTab === tab.target ? ' active' : ''}`}
+                className={`sticky-nav-link${activeTab === tab.target ? ' active' : ''}`}
                 onClick={(e) => handleTabClick(e, tab.target)}
               >
                 {tab.label}
               </button>
             ))}
+          </nav>
+          <div className="sticky-nav-endcap">
+            <svg viewBox="0 0 26 26" fill="none">
+              <path d="M13 1L1.5 7.5v11L13 25l11.5-6.5v-11L13 1z" stroke="currentColor" strokeWidth="1.8" fill="none" />
+              <path d="M13 1v24M1.5 7.5L13 13.5l11.5-6M1.5 18.5L13 13.5l11.5 5" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
+              <circle cx="13" cy="13" r="2.5" fill="currentColor" />
+            </svg>
           </div>
-          <a href="#" className="btn-cyan sticky-browser-cta" onClick={(e) => { e.preventDefault(); openModal('dark'); }}>Start a Project</a>
         </div>
       </div>
     </section>

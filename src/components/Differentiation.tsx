@@ -1,6 +1,6 @@
 export default function Differentiation() {
   return (
-    <section className="differentiation">
+    <section className="differentiation" id="differentiation">
       <div className="container">
         <h2 className="diff-title fade-up">What Sets Us Apart</h2>
         <div className="diff-grid">
