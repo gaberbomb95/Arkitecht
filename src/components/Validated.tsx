@@ -1,6 +1,6 @@
 export default function Validated() {
   return (
-    <section className="validated">
+    <section className="validated" id="validated">
       <div className="validated-bg" />
       <div className="container">
         <h2 className="fade-up">Trusted by Startups and Enterprises to Build What Matters</h2>

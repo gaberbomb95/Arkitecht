@@ -1,6 +1,6 @@
 export default function WhyChange() {
   return (
-    <section className="why-change">
+    <section className="why-change" id="why-change">
       <div className="container">
         <div className="why-change-inner">
           <div className="why-change-diagram fade-up">

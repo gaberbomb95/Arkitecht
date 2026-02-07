@@ -1,18 +1,138 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface HeroSectionProps {
-  isDark: boolean;
-  toggleDark: () => void;
   isPricing: boolean;
+  showPricing: (e: React.MouseEvent) => void;
   hidePricing: (e: React.MouseEvent) => void;
+  openModal: (theme: 'dark' | 'light') => void;
 }
 
-export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing }: HeroSectionProps) {
+/* Navigation tabs — swap content inside the center monitor */
+const NAV_TABS = [
+  { label: 'Home', target: 'home' },
+  { label: 'Work', target: 'work' },
+  { label: 'Why Us', target: 'whyus' },
+  { label: 'Solution', target: 'solution' },
+  { label: 'Services', target: 'services' },
+  { label: 'Pricing', target: 'pricing' },
+  { label: 'Contact', target: 'contact' },
+] as const;
+
+export default function HeroSection({ isPricing, showPricing, hidePricing, openModal }: HeroSectionProps) {
   const keyboardRef = useRef<HTMLDivElement>(null);
+  const reflectionRef = useRef<HTMLDivElement>(null);
   const [interceptEntries, setInterceptEntries] = useState<string[]>([]);
   const [logOpen, setLogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>('home');
+  const [stickyNav, setStickyNav] = useState(false);
+  const [monitorsOn, setMonitorsOn] = useState(true);
+  const [crtOff, setCrtOff] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+
+  /* Scroll lock — body can't scroll while monitors are on */
+  useEffect(() => {
+    if (monitorsOn) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [monitorsOn]);
+
+  /* Show power hint — always visible while monitors are on */
+  useEffect(() => {
+    setShowHint(monitorsOn);
+  }, [monitorsOn]);
+
+  /* Scroll spy — only active when monitors are off */
+  useEffect(() => {
+    if (monitorsOn) return;
+    const sectionIds = ['heroSection', 'validated', 'why-change', 'solution', 'services', 'contact'];
+    const tabMap: Record<string, string> = {
+      heroSection: 'home', validated: 'work', 'why-change': 'whyus',
+      solution: 'solution', services: 'services', contact: 'contact',
+    };
+    const handleScroll = () => {
+      const heroEl = document.getElementById('heroSection');
+      if (heroEl) {
+        const heroBottom = heroEl.getBoundingClientRect().bottom;
+        setStickyNav(heroBottom < 0);
+      }
+      let current = 'heroSection';
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= 120) current = id;
+      }
+      setActiveTab(tabMap[current] || 'home');
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [monitorsOn]);
+
+  /* Handle tab click — swap content in monitor, or scroll if monitors off */
+  const handleTabClick = useCallback((e: React.MouseEvent, target: string) => {
+    e.preventDefault();
+    if (target === 'pricing' && monitorsOn) {
+      showPricing(e);
+      setActiveTab('pricing');
+      return;
+    }
+    if (!monitorsOn) {
+      // Scroll mode — map tab targets to section IDs
+      const scrollMap: Record<string, string> = {
+        home: 'heroSection', work: 'validated', whyus: 'why-change',
+        solution: 'solution', services: 'services', pricing: 'heroSection', contact: 'contact',
+      };
+      const el = document.getElementById(scrollMap[target] || 'heroSection');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (target === 'pricing') showPricing(e);
+      return;
+    }
+    // Monitor mode — swap tab content
+    if (isPricing) hidePricing(e);
+    setActiveTab(target);
+  }, [showPricing, hidePricing, isPricing, monitorsOn]);
+
+  /* Power off — CRT animation then unlock scroll */
+  const handlePowerOff = useCallback(() => {
+    setCrtOff(true);
+    setShowHint(false);
+    setTimeout(() => {
+      setMonitorsOn(false);
+    }, 600);
+  }, []);
+
+  /* Power on — when user scrolls back to top */
+  const handlePowerOn = useCallback(() => {
+    setCrtOff(false);
+    setMonitorsOn(true);
+    setActiveTab('home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  /* Spacebar toggles monitors on/off, Enter opens contact modal */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (monitorsOn) {
+          handlePowerOff();
+        } else {
+          handlePowerOn();
+        }
+      }
+      if (e.code === 'Enter') {
+        e.preventDefault();
+        openModal('dark');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [monitorsOn, handlePowerOff, handlePowerOn, openModal]);
 
   // Staggered pricing animation states (match original HTML behavior)
   const [pricingMode, setPricingMode] = useState(false);
@@ -174,61 +294,6 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
     };
   }, []);
 
-  // Scroll-driven keyboard tilt + monitor lift
-  useEffect(() => {
-    const kb = keyboardRef.current;
-    if (!kb) return;
-
-    const startAngle = 36, endAngle = 2;
-    const startScale = 1.25, endScaleVal = 1.35;
-    const scrollStart = 80, scrollEnd = 500;
-    const monitorLift = -140;
-    let ticking = false;
-    const monitorArray = document.querySelector('.monitor-array') as HTMLElement | null;
-
-    function getBreakpoint() {
-      const w = window.innerWidth;
-      if (w <= 600) return { angle: 22, scale: 0.95, endScale: 1.05, perspective: 900 };
-      if (w <= 900) return { angle: 28, scale: 1.08, endScale: 1.18, perspective: 1000 };
-      return { angle: startAngle, scale: startScale, endScale: endScaleVal, perspective: 1000 };
-    }
-
-    function easeOutCubic(t: number) {
-      return 1 - Math.pow(1 - t, 3);
-    }
-
-    function updateTilt() {
-      ticking = false;
-      if (!kb) return;
-      const scrollY = window.scrollY;
-      const bp = getBreakpoint();
-
-      if (scrollY <= scrollStart) {
-        kb.style.transform = `perspective(${bp.perspective}px) rotateX(${bp.angle}deg) scale(${bp.scale})`;
-        if (monitorArray) monitorArray.style.transform = 'translateY(0)';
-        return;
-      }
-
-      const raw = (scrollY - scrollStart) / (scrollEnd - scrollStart);
-      const t = easeOutCubic(Math.min(Math.max(raw, 0), 1));
-      const angle = bp.angle + (endAngle - bp.angle) * t;
-      const scale = bp.scale + (bp.endScale - bp.scale) * t;
-      const lift = monitorLift * t;
-
-      kb.style.transform = `perspective(${bp.perspective}px) rotateX(${angle}deg) scale(${scale})`;
-      if (monitorArray) monitorArray.style.transform = `translateY(${lift}px)`;
-    }
-
-    function onScroll() {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(updateTilt);
-      }
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   // Sync side monitor heights to center
   useEffect(() => {
@@ -272,8 +337,48 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
     setLogOpen((prev) => !prev);
   };
 
+  // Mouse-follow specular reflection on chassis
+  useEffect(() => {
+    const kb = keyboardRef.current;
+    const reflection = reflectionRef.current;
+    if (!kb || !reflection) return;
+
+    function handleMouseMove(e: MouseEvent) {
+      const rect = kb!.getBoundingClientRect();
+      const pad = 50;
+      if (
+        e.clientX >= rect.left - pad && e.clientX <= rect.right + pad &&
+        e.clientY >= rect.top - pad && e.clientY <= rect.bottom + pad
+      ) {
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        reflection!.style.setProperty('--reflect-x', `${Math.max(0, Math.min(100, x))}%`);
+        reflection!.style.setProperty('--reflect-y', `${Math.max(0, Math.min(100, y))}%`);
+        reflection!.style.opacity = '1';
+      } else {
+        reflection!.style.opacity = '0';
+      }
+    }
+
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => document.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   return (
-    <section className="hero" id="heroSection">
+    <section className={`hero dark-mode${monitorsOn ? ' monitors-on' : ' monitors-off'}`} id="heroSection">
+      {/* Hero logo — top left */}
+      <div className="hero-logo">
+        <svg viewBox="0 0 26 26" fill="none">
+          <path d="M13 1L1.5 7.5v11L13 25l11.5-6.5v-11L13 1z" stroke="currentColor" strokeWidth="1.8" fill="none" />
+          <path d="M13 1v24M1.5 7.5L13 13.5l11.5-6M1.5 18.5L13 13.5l11.5 5" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
+          <circle cx="13" cy="13" r="2.5" fill="currentColor" />
+        </svg>
+        <span>Arkitecht</span>
+      </div>
+
+      {/* Horizon glow at vanishing point */}
+      <div className="hero-horizon-glow" />
+
       {/* Architectural blueprint background */}
       <div className="hero-blueprint-bg">
         <svg viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -338,35 +443,35 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
               <stop offset="85%" stopColor="white" stopOpacity={1} />
               <stop offset="100%" stopColor="white" stopOpacity={0} />
             </linearGradient>
-            <linearGradient id="wireFadeLeft" gradientUnits="userSpaceOnUse" x1="480" y1="750" x2="260" y2="320">
+            <linearGradient id="wireFadeLeft" gradientUnits="userSpaceOnUse" x1="480" y1="750" x2="300" y2="320">
               <stop offset="0%" stopColor="white" stopOpacity={1} />
               <stop offset="80%" stopColor="white" stopOpacity={1} />
               <stop offset="100%" stopColor="white" stopOpacity={0} />
             </linearGradient>
-            <linearGradient id="wireFadeRight" gradientUnits="userSpaceOnUse" x1="720" y1="750" x2="940" y2="320">
+            <linearGradient id="wireFadeRight" gradientUnits="userSpaceOnUse" x1="720" y1="750" x2="900" y2="320">
               <stop offset="0%" stopColor="white" stopOpacity={1} />
               <stop offset="80%" stopColor="white" stopOpacity={1} />
               <stop offset="100%" stopColor="white" stopOpacity={0} />
             </linearGradient>
             <mask id="maskCenter"><rect x="480" y="310" width="240" height="470" fill="url(#wireFadeCenter)" /></mask>
-            <mask id="maskLeft"><rect x="100" y="290" width="560" height="490" fill="url(#wireFadeLeft)" /></mask>
-            <mask id="maskRight"><rect x="540" y="290" width="560" height="490" fill="url(#wireFadeRight)" /></mask>
+            <mask id="maskLeft"><rect x="140" y="290" width="520" height="490" fill="url(#wireFadeLeft)" /></mask>
+            <mask id="maskRight"><rect x="540" y="290" width="520" height="490" fill="url(#wireFadeRight)" /></mask>
           </defs>
           <g mask="url(#maskCenter)">
             <path className="wire-path" id="wireKbCenter" d="M600 750 C603 730 608 716 612 700 C618 682 606 662 598 648 C590 634 596 618 610 602 C624 586 642 572 648 556 C654 540 648 522 636 508 C624 494 614 480 620 462 C626 444 636 432 630 416 C624 400 616 386 610 372 C604 358 598 346 600 332" />
             <path className="wire-pulse" id="pulseKbCenter" d="M600 750 C603 730 608 716 612 700 C618 682 606 662 598 648 C590 634 596 618 610 602 C624 586 642 572 648 556 C654 540 648 522 636 508 C624 494 614 480 620 462 C626 444 636 432 630 416 C624 400 616 386 610 372 C604 358 598 346 600 332" />
           </g>
           <g mask="url(#maskLeft)">
-            <path className="wire-path" id="wireKbLeft" d="M480 750 C476 736 470 720 462 706 C452 690 466 672 480 658 C494 644 514 628 534 614 C554 600 570 586 576 570 C582 554 576 538 558 524 C540 510 508 502 478 496 C448 490 414 488 384 480 C354 472 328 458 308 440 C288 422 274 406 268 388 C262 370 258 356 260 340" />
-            <path className="wire-pulse" id="pulseKbLeft" d="M480 750 C476 736 470 720 462 706 C452 690 466 672 480 658 C494 644 514 628 534 614 C554 600 570 586 576 570 C582 554 576 538 558 524 C540 510 508 502 478 496 C448 490 414 488 384 480 C354 472 328 458 308 440 C288 422 274 406 268 388 C262 370 258 356 260 340" />
+            <path className="wire-path" id="wireKbLeft" d="M480 750 C476 736 470 720 462 706 C452 690 466 672 480 658 C494 644 514 628 534 614 C554 600 570 586 576 570 C582 554 576 538 558 524 C540 510 512 502 488 496 C462 490 432 488 404 480 C376 472 352 458 336 440 C320 422 310 406 305 388 C300 370 298 356 300 340" />
+            <path className="wire-pulse" id="pulseKbLeft" d="M480 750 C476 736 470 720 462 706 C452 690 466 672 480 658 C494 644 514 628 534 614 C554 600 570 586 576 570 C582 554 576 538 558 524 C540 510 512 502 488 496 C462 490 432 488 404 480 C376 472 352 458 336 440 C320 422 310 406 305 388 C300 370 298 356 300 340" />
           </g>
           <g mask="url(#maskRight)">
-            <path className="wire-path" id="wireKbRight" d="M720 750 C724 734 730 718 738 704 C748 688 734 670 718 656 C704 642 684 626 664 614 C644 602 628 588 622 572 C616 556 622 540 640 526 C658 512 690 504 720 498 C750 492 784 488 814 480 C844 472 870 458 890 440 C910 422 924 404 932 386 C938 368 940 354 940 340" />
-            <path className="wire-pulse" id="pulseKbRight" d="M720 750 C724 734 730 718 738 704 C748 688 734 670 718 656 C704 642 684 626 664 614 C644 602 628 588 622 572 C616 556 622 540 640 526 C658 512 690 504 720 498 C750 492 784 488 814 480 C844 472 870 458 890 440 C910 422 924 404 932 386 C938 368 940 354 940 340" />
+            <path className="wire-path" id="wireKbRight" d="M720 750 C724 734 730 718 738 704 C748 688 734 670 718 656 C704 642 684 626 664 614 C644 602 628 588 622 572 C616 556 622 540 640 526 C658 512 686 504 710 498 C736 492 766 488 794 480 C822 472 846 458 862 440 C878 422 888 406 893 388 C898 370 900 356 900 340" />
+            <path className="wire-pulse" id="pulseKbRight" d="M720 750 C724 734 730 718 738 704 C748 688 734 670 718 656 C704 642 684 626 664 614 C644 602 628 588 622 572 C616 556 622 540 640 526 C658 512 686 504 710 498 C736 492 766 488 794 480 C822 472 846 458 862 440 C878 422 888 406 893 388 C898 370 900 356 900 340" />
           </g>
           <circle cx="600" cy="335" r="3" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="1" className="wire-port" />
-          <circle cx="260" cy="335" r="3" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="1" className="wire-port" />
-          <circle cx="940" cy="335" r="3" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="1" className="wire-port" />
+          <circle cx="300" cy="335" r="3" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="1" className="wire-port" />
+          <circle cx="900" cy="335" r="3" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="1" className="wire-port" />
         </svg>
       </div>
 
@@ -381,20 +486,6 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
             </div>
           </div>
 
-          {/* Desk lamp (theme toggle) */}
-          <div className={`lamp-wrap${isDark ? ' off' : ''}`} id="deskLamp" title="Toggle light/dark mode" onClick={toggleDark}>
-            <div className="lamp-label">light / dark</div>
-            <div className="lamp">
-              <div className="lamp-head">
-                <span className="lamp-icon lamp-icon-sun">&#9728;</span>
-                <span className="lamp-icon lamp-icon-moon">&#9790;</span>
-              </div>
-              <div className="lamp-chain" />
-              <div className="lamp-cone" />
-              <div className="lamp-arm" />
-              <div className="lamp-base" />
-            </div>
-          </div>
 
           {/* Keyboard hardware details */}
           <div className="kb-details">
@@ -406,47 +497,63 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
             <div className="kb-brand-mark">arkitecht</div>
           </div>
 
+          {/* Rotary encoder knob */}
+          <div className="kb-knob" />
+
+          {/* Chassis corner screws */}
+          <div className="kb-screw screw-tl" />
+          <div className="kb-screw screw-tr" />
+          <div className="kb-screw screw-bl" />
+          <div className="kb-screw screw-br" />
+
+          {/* Rubber grip strips */}
+          <div className="kb-grip grip-left" />
+          <div className="kb-grip grip-right" />
+
+          {/* Specular reflection overlay */}
+          <div className="kb-reflection" ref={reflectionRef} />
+
           {/* Keyboard rows */}
-          <div className="kb-row">
+          <div className="kb-row row-fn">
             <div className="kb-key">esc</div>
             <div className="kb-key">F1</div><div className="kb-key">F2</div><div className="kb-key">F3</div><div className="kb-key">F4</div>
             <div className="kb-key">F5</div><div className="kb-key">F6</div><div className="kb-key">F7</div><div className="kb-key">F8</div>
             <div className="kb-key">F9</div><div className="kb-key">F10</div><div className="kb-key">F11</div><div className="kb-key">F12</div>
             <div className="kb-key">&#9167;</div>
           </div>
-          <div className="kb-row">
+          <div className="kb-row row-num">
             <div className="kb-key">`</div><div className="kb-key">1</div><div className="kb-key">2</div><div className="kb-key">3</div>
             <div className="kb-key">4</div><div className="kb-key">5</div><div className="kb-key">6</div><div className="kb-key">7</div>
             <div className="kb-key">8</div><div className="kb-key">9</div><div className="kb-key">0</div><div className="kb-key">-</div>
             <div className="kb-key">=</div><div className="kb-key w-1-5">&#9003;</div>
           </div>
-          <div className="kb-row">
+          <div className="kb-row row-qwerty">
             <div className="kb-key w-1-5">tab</div>
             <div className="kb-key">Q</div><div className="kb-key">W</div><div className="kb-key">E</div><div className="kb-key">R</div>
             <div className="kb-key">T</div><div className="kb-key">Y</div><div className="kb-key">U</div><div className="kb-key">I</div>
             <div className="kb-key">O</div><div className="kb-key">P</div><div className="kb-key">[</div><div className="kb-key">]</div>
             <div className="kb-key">\</div>
           </div>
-          <div className="kb-row">
+          <div className="kb-row row-home">
             <div className="kb-key w-1-75">caps</div>
-            <div className="kb-key">A</div><div className="kb-key">S</div><div className="kb-key">D</div><div className="kb-key">F</div>
-            <div className="kb-key">G</div><div className="kb-key">H</div><div className="kb-key">J</div><div className="kb-key">K</div>
+            <div className="kb-key">A</div><div className="kb-key">S</div><div className="kb-key">D</div><div className="kb-key homing">F</div>
+            <div className="kb-key">G</div><div className="kb-key">H</div><div className="kb-key homing">J</div><div className="kb-key">K</div>
             <div className="kb-key">L</div><div className="kb-key">;</div><div className="kb-key">&apos;</div>
-            <a href="#" className="kb-key cta-enter"><span className="enter-symbol">&#8629;</span>Let&apos;s Build</a>
+            <a href="#" className="kb-key cta-enter" onClick={(e) => { e.preventDefault(); openModal('dark'); }}><span className="enter-symbol">&#8629;</span>Let&apos;s Build</a>
           </div>
-          <div className="kb-row">
+          <div className="kb-row row-shift">
             <div className="kb-key w-2-25">&#8679;</div>
             <div className="kb-key">Z</div><div className="kb-key">X</div><div className="kb-key">C</div><div className="kb-key">V</div>
             <div className="kb-key">B</div><div className="kb-key">N</div><div className="kb-key">M</div><div className="kb-key">,</div>
             <div className="kb-key">.</div><div className="kb-key">/</div>
             <div className="kb-key w-2-25">&#8679;</div>
           </div>
-          <div className="kb-row">
+          <div className="kb-row row-bottom">
             <div className="kb-key">fn</div>
             <div className="kb-key w-1-25">&#8963;</div>
             <div className="kb-key w-1-25">&#8997;</div>
             <div className="kb-key w-1-5">&#8984;</div>
-            <a href="#" className="kb-key cta-space">Start a Project</a>
+            <a href="#" className="kb-key cta-space">Scroll to Explore</a>
             <div className="kb-key w-1-5">&#8984;</div>
             <div className="kb-key w-1-25">&#8997;</div>
             <div className="kb-key">&#9664;</div>
@@ -457,6 +564,18 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
             <div className="kb-key">&#9654;</div>
           </div>
         </div>
+        <div className="wrist-rest" />
+      </div>
+
+      {/* Desk book */}
+      <div className="desk-book">
+        <div className="book-cover">
+          <div className="book-title">Debugging the Dating Pool:</div>
+          <div className="book-subtitle">Why My UI Works but My Rizz Doesn&apos;t</div>
+        </div>
+        <div className="book-pages-right" />
+        <div className="book-pages-bottom" />
+        <div className="book-spine" />
       </div>
 
       {/* Hero content — Monitors */}
@@ -465,7 +584,7 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
           {/* LEFT MONITOR */}
           <div className="monitor-unit left" id="monitorLeft">
             <div className="monitor">
-              <div className="monitor-screen">
+              <div className={`monitor-screen${crtOff ? ' crt-off' : ''}${!monitorsOn ? ' screen-off' : ''}`}>
                 <div className={`monitor-screen-inner powered${pricingMode ? ' pricing-mode' : ''}`} id="screenLeft">
                   <div className="blueprint-screen" />
                   <div className="side-screen-content" id="bpLeft">
@@ -500,12 +619,6 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
                   </div>
                   {/* Pricing: MVP tier */}
                   <div className={`pricing-overlay${leftActive ? ' active' : ''}`} id="pricingLeft">
-                    <div className="pricing-term-bar">
-                      <div className="pricing-term-dot red" />
-                      <div className="pricing-term-dot yellow" />
-                      <div className="pricing-term-dot green" />
-                      <span className="pricing-term-title">mvp.config</span>
-                    </div>
                     <div className="pricing-single">
                       <div className="pricing-tier-name">MVP</div>
                       <div className="pricing-tier-price">$15K&ndash;30K</div>
@@ -530,7 +643,7 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
           {/* CENTER MONITOR */}
           <div className="monitor-unit center" id="monitorCenter">
             <div className="monitor">
-              <div className="webcam-dot recording" id="webcamDot" onClick={handleWebcamClick} />
+              <div className={`webcam-dot${monitorsOn ? ' recording' : ''}`} id="webcamDot" onClick={monitorsOn ? handleWebcamClick : undefined} />
               <div className={`intercept-log${logOpen ? ' open' : ''}`} id="interceptLog">
                 <div className="intercept-header">
                   <div className="rec-dot" />
@@ -549,8 +662,34 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
                   )}
                 </div>
               </div>
-              <div className="monitor-screen">
+              {/* Browser chrome — tab bar */}
+              <div className={`browser-chrome${!monitorsOn ? ' chrome-off' : ''}`}>
+                <div className="browser-tabs">
+                  {NAV_TABS.map((tab) => (
+                    <button
+                      key={tab.target}
+                      className={`browser-tab${activeTab === tab.target ? ' active' : ''}`}
+                      onClick={(e) => handleTabClick(e, tab.target)}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="browser-address-bar">
+                  <div className="browser-window-controls">
+                    <span className="bw-dot red" />
+                    <span className="bw-dot yellow" />
+                    <span className="bw-dot green" />
+                  </div>
+                  <div className="browser-url">
+                    <svg className="browser-lock" viewBox="0 0 12 12" fill="none"><path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/><rect x="2.5" y="5" width="7" height="5" rx="1" stroke="currentColor" strokeWidth="1"/></svg>
+                    <span>arkitecht.io</span>
+                  </div>
+                </div>
+              </div>
+              <div className={`monitor-screen${crtOff ? ' crt-off' : ''}${!monitorsOn ? ' screen-off' : ''}`}>
                 <div className={`monitor-screen-inner powered${pricingMode ? ' pricing-mode' : ''}`} id="screenCenter">
+                  {/* Blueprint background overlay */}
                   <div className="center-blueprint-overlay" id="centerBpOverlay">
                     <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path className="bp-line dim" d="M0 150 Q100 80 200 150 Q300 220 400 150" style={{ strokeDasharray: 600, strokeDashoffset: 600 }} />
@@ -565,16 +704,88 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
                       <line x1="200" y1="60" x2="200" y2="140" className="bp-line dim" style={{ strokeDasharray: 80, strokeDashoffset: 80 }} />
                     </svg>
                   </div>
-                  <div className="hero-text" id="heroTextDefault">
-                    <div className="monitor-prompt"><span>arkitecht@studio:~$</span> ./build --mode=production</div>
-                    <h1>We Architect, Design, and Ship Digital Products</h1>
-                    <p>
-                      Arkitecht is a full-stack product studio for teams that need world-class software — from first
-                      wireframe to global scale. We turn ambitious ideas into production-ready platforms.
-                      <span className="monitor-cursor" />
-                    </p>
+
+                  {/* === TAB PANELS === */}
+                  {/* HOME */}
+                  <div className={`tab-panel${activeTab === 'home' && !pricingMode ? ' active' : ''}`}>
+                    <div className="hero-text" id="heroTextDefault">
+                      <div className="monitor-prompt"><span>arkitecht@studio:~$</span> ./build --mode=production</div>
+                      <h1>We <span className="brand-glow">Arch<span className="i-logo-wrap">ı<svg className="i-tesseract" viewBox="0 0 26 26" fill="none"><path d="M13 1L1.5 7.5v11L13 25l11.5-6.5v-11L13 1z" stroke="currentColor" strokeWidth="1.8" fill="none" /><path d="M13 1v24M1.5 7.5L13 13.5l11.5-6M1.5 18.5L13 13.5l11.5 5" stroke="currentColor" strokeWidth="0.8" opacity="0.5" /><circle cx="13" cy="13" r="2.5" fill="currentColor" /></svg></span>tect</span>, Design, and Ship Digital Products</h1>
+                      <p>
+                        Arkitecht is a full-stack product studio for teams that need world-class software — from first
+                        wireframe to global scale. We turn ambitious ideas into production-ready platforms.
+                        <span className="monitor-cursor" />
+                      </p>
+                    </div>
                   </div>
-                  {/* Pricing: PMF tier */}
+
+                  {/* WORK */}
+                  <div className={`tab-panel${activeTab === 'work' ? ' active' : ''}`}>
+                    <div className="panel-content">
+                      <div className="monitor-prompt"><span>arkitecht@studio:~$</span> cat ./case-studies.log</div>
+                      <h2 className="panel-title">Trusted by Startups &amp; Enterprises</h2>
+                      <p className="panel-desc">Our clients range from seed-stage startups to enterprise teams building mission-critical platforms.</p>
+                      <div className="panel-stats">
+                        <div className="panel-stat"><span className="stat-num">150+</span><span className="stat-label">Products Shipped</span></div>
+                        <div className="panel-stat"><span className="stat-num">98%</span><span className="stat-label">Client Retention</span></div>
+                        <div className="panel-stat"><span className="stat-num">4.9</span><span className="stat-label">Avg Rating</span></div>
+                      </div>
+                      <div className="panel-logos">
+                        <span>Bloompath</span><span>Seznam.cz</span><span>Moderna</span><span>UKG</span><span>Five9</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* WHY US */}
+                  <div className={`tab-panel${activeTab === 'whyus' ? ' active' : ''}`}>
+                    <div className="panel-content">
+                      <div className="monitor-prompt"><span>arkitecht@studio:~$</span> cat ./problem-statement.md</div>
+                      <div className="panel-tag">The Problem</div>
+                      <h2 className="panel-title">Great Ideas Deserve Better Than Mediocre Execution</h2>
+                      <p className="panel-desc">
+                        Hiring is slow. Freelancers are unpredictable. Internal teams are stretched thin.
+                        Meanwhile, your competitors are shipping.
+                      </p>
+                      <div className="panel-highlight">
+                        Every month of delay = lost revenue, lost users, lost momentum.
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SOLUTION */}
+                  <div className={`tab-panel${activeTab === 'solution' ? ' active' : ''}`}>
+                    <div className="panel-content">
+                      <div className="monitor-prompt"><span>arkitecht@studio:~$</span> cat ./approach.yml</div>
+                      <div className="panel-tag">Our Approach</div>
+                      <h2 className="panel-title">Enterprise-Grade Engineering at Startup Speed</h2>
+                      <p className="panel-desc">
+                        We take your product vision and deliver production-ready software built on clean architecture,
+                        modern tooling, and systems that scale.
+                      </p>
+                      <div className="panel-pills">
+                        <span className="panel-pill">Senior engineers only</span>
+                        <span className="panel-pill">Full accountability</span>
+                        <span className="panel-pill">Ships fast</span>
+                        <span className="panel-pill">Built to scale</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SERVICES */}
+                  <div className={`tab-panel${activeTab === 'services' ? ' active' : ''}`}>
+                    <div className="panel-content">
+                      <div className="monitor-prompt"><span>arkitecht@studio:~$</span> ls ./services/</div>
+                      <h2 className="panel-title">What We Build</h2>
+                      <div className="panel-services">
+                        <div className="panel-service"><span className="service-num">01</span><strong>Web &amp; Mobile Apps</strong><br/>Full-stack, responsive, production-grade</div>
+                        <div className="panel-service"><span className="service-num">02</span><strong>MVP to Market</strong><br/>Idea to launch in weeks</div>
+                        <div className="panel-service"><span className="service-num">03</span><strong>Design Systems</strong><br/>Component libraries &amp; pixel-perfect UI</div>
+                        <div className="panel-service"><span className="service-num">04</span><strong>Platform &amp; APIs</strong><br/>Microservices built for scale</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* PRICING (existing overlay system) */}
                   <div className={`pricing-overlay${centerActive ? ' active' : ''}`} id="pricingCenter">
                     <div className="pricing-term-bar">
                       <div className="pricing-term-dot red" />
@@ -582,7 +793,7 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
                       <div className="pricing-term-dot green" />
                       <span className="pricing-term-title">cat ./pmf-engagement.yml</span>
                     </div>
-                    <div className="pricing-back" id="pricingBack" onClick={hidePricing}>
+                    <div className="pricing-back" id="pricingBack" onClick={(e) => { hidePricing(e); setActiveTab('home'); }}>
                       <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M15 8L5 16L15 24V8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         <path d="M27 8L17 16L27 24V8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -599,23 +810,42 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
                       <li className="highlight">Dedicated senior team</li>
                       <li className="highlight">Analytics &amp; user tracking</li>
                       <li>A/B testing infrastructure</li>
-                      <li>Iterate until product-market fit</li>
                       <li>Design system &amp; component library</li>
                       <li>Performance &amp; SEO optimization</li>
                       <li>90-day post-launch support</li>
                     </ul>
                   </div>
+
+                  {/* CONTACT */}
+                  <div className={`tab-panel${activeTab === 'contact' ? ' active' : ''}`}>
+                    <div className="panel-content panel-contact">
+                      <div className="monitor-prompt"><span>arkitecht@studio:~$</span> ./init-project.sh</div>
+                      <h2 className="panel-title">Let&apos;s Build Something Worth Shipping</h2>
+                      <p className="panel-desc">
+                        Tell us about your project. We&apos;ll get back to you within 24 hours with a plan.
+                      </p>
+                      <a href="#" className="btn-cyan panel-cta" onClick={(e) => { e.preventDefault(); openModal('dark'); }}>START A PROJECT</a>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="monitor-chin"><div className="monitor-brand">arkitecht</div></div>
+            <div className="monitor-chin">
+              <button className={`power-btn${!monitorsOn ? ' power-off' : ''}`} onClick={monitorsOn ? handlePowerOff : handlePowerOn}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M12 3v6" /><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64" />
+                </svg>
+              </button>
+              <div className="monitor-brand">arkitecht</div>
+              {monitorsOn && <div className="power-hint">Power off to explore →</div>}
+            </div>
             <div className="monitor-stand-wrap"><div className="m-stand" /><div className="m-base" /></div>
           </div>
 
           {/* RIGHT MONITOR */}
           <div className="monitor-unit right" id="monitorRight">
             <div className="monitor">
-              <div className="monitor-screen">
+              <div className={`monitor-screen${crtOff ? ' crt-off' : ''}${!monitorsOn ? ' screen-off' : ''}`}>
                 <div className={`monitor-screen-inner powered${pricingMode ? ' pricing-mode' : ''}`} id="screenRight">
                   <div className="blueprint-screen" />
                   <div className="side-screen-content" id="bpRight">
@@ -650,18 +880,6 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
                   </div>
                   {/* Pricing: SCALE tier */}
                   <div className={`pricing-overlay${rightActive ? ' active' : ''}`} id="pricingRight">
-                    <div className="squiggle-arrow">
-                      <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 10 L25 2 L32 10" stroke="var(--cyan)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" className="squiggle-head" />
-                        <path d="M25 50 C44 48, 8 38, 25 24 C32 16, 25 8, 25 4" stroke="var(--cyan)" strokeWidth="2.5" strokeLinecap="round" fill="none" className="squiggle-path" />
-                      </svg>
-                    </div>
-                    <div className="pricing-term-bar">
-                      <div className="pricing-term-dot red" />
-                      <div className="pricing-term-dot yellow" />
-                      <div className="pricing-term-dot green" />
-                      <span className="pricing-term-title">scale.config</span>
-                    </div>
                     <div className="pricing-single">
                       <div className="pricing-tier-name">SCALE</div>
                       <div className="pricing-tier-price">Let&apos;s Talk</div>
@@ -682,6 +900,37 @@ export default function HeroSection({ isDark, toggleDark, isPricing, hidePricing
             <div className="monitor-chin"><div className="monitor-brand">arkitecht</div></div>
             <div className="monitor-stand-wrap"><div className="m-stand" /><div className="m-base" /></div>
           </div>
+        </div>
+
+        {/* Glass monitor shelf */}
+        <div className="glass-shelf">
+          <div className="glass-shelf-edge" />
+        </div>
+
+      </div>
+
+      {/* Sticky browser tab bar — appears when scrolled past hero */}
+      <div className={`sticky-browser-bar${stickyNav ? ' visible' : ''}`}>
+        <div className="sticky-browser-inner">
+          <div className="sticky-browser-logo">
+            <svg viewBox="0 0 26 26" fill="none">
+              <path d="M13 1L1.5 7.5v11L13 25l11.5-6.5v-11L13 1z" stroke="currentColor" strokeWidth="1.8" fill="none" />
+              <path d="M13 1v24M1.5 7.5L13 13.5l11.5-6M1.5 18.5L13 13.5l11.5 5" stroke="currentColor" strokeWidth="0.8" opacity="0.3" />
+              <circle cx="13" cy="13" r="2.5" fill="currentColor" />
+            </svg>
+          </div>
+          <div className="sticky-browser-tabs">
+            {NAV_TABS.filter((tab) => tab.target !== 'pricing').map((tab) => (
+              <button
+                key={tab.target}
+                className={`sticky-tab${activeTab === tab.target ? ' active' : ''}`}
+                onClick={(e) => handleTabClick(e, tab.target)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <a href="#" className="btn-cyan sticky-browser-cta" onClick={(e) => { e.preventDefault(); openModal('dark'); }}>Start a Project</a>
         </div>
       </div>
     </section>

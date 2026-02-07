@@ -1,6 +1,6 @@
 export default function Solution() {
   return (
-    <section className="solution">
+    <section className="solution" id="solution">
       <div className="container">
         <div className="solution-inner">
           <div className="fade-up">

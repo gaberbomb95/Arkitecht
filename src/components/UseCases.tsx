@@ -1,6 +1,6 @@
 export default function UseCases() {
   return (
-    <section className="use-cases">
+    <section className="use-cases" id="services">
       <div className="container">
         <div className="use-cases-inner">
           <div className="use-cases-left">

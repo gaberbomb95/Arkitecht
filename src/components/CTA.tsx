@@ -1,6 +1,10 @@
-export default function CTA() {
+interface CTAProps {
+  openModal: (theme: 'dark' | 'light') => void;
+}
+
+export default function CTA({ openModal }: CTAProps) {
   return (
-    <section className="cta">
+    <section className="cta" id="contact">
       <div className="container">
         <div className="cta-inner">
           <div className="cta-left fade-up">
@@ -11,7 +15,7 @@ export default function CTA() {
               </svg>
             </div>
             <h2>Let&apos;s build something worth shipping</h2>
-            <a href="#" className="btn-cyan-lg">START A PROJECT</a>
+            <a href="#" className="btn-cyan-lg" onClick={(e) => { e.preventDefault(); openModal('light'); }}>START A PROJECT</a>
           </div>
           <div className="cta-dashboard fade-up stagger-2">
             <div className="dash-section">

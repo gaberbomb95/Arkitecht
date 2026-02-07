@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
-import Nav from '@/components/Nav';
 import HeroSection from '@/components/HeroSection';
 import Validated from '@/components/Validated';
 import Logos from '@/components/Logos';
@@ -13,26 +12,19 @@ import UseCases from '@/components/UseCases';
 import Testimonial from '@/components/Testimonial';
 import CTA from '@/components/CTA';
 import Footer from '@/components/Footer';
+import ContactModal from '@/components/ContactModal';
 
 export default function Home() {
-  const [isDark, setIsDark] = useState(false);
   const [isPricing, setIsPricing] = useState(false);
-
-  // Dark mode toggle
-  const toggleDark = useCallback(() => {
-    setIsDark((prev) => {
-      const next = !prev;
-      document.body.classList.toggle('dark-mode', next);
-      return next;
-    });
-  }, []);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTheme, setModalTheme] = useState<'dark' | 'light'>('dark');
 
   // Pricing show/hide
   const showPricing = useCallback(
     (e: React.MouseEvent) => {
-      e.preventDefault();
-      if (isPricing) return;
-      setIsPricing(true);
+    e.preventDefault();
+    if (isPricing) return;
+    setIsPricing(true);
       document.getElementById('heroSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     },
     [isPricing]
@@ -43,13 +35,22 @@ export default function Home() {
     setIsPricing(false);
   }, []);
 
+  // Contact modal
+  const openModal = useCallback((theme: 'dark' | 'light') => {
+    setModalTheme(theme);
+    setModalOpen(true);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setModalOpen(false);
+  }, []);
+
   // Scroll-driven fade-up animations
   useScrollReveal();
 
   return (
     <>
-      <Nav showPricing={showPricing} />
-      <HeroSection isDark={isDark} toggleDark={toggleDark} isPricing={isPricing} hidePricing={hidePricing} />
+      <HeroSection isPricing={isPricing} showPricing={showPricing} hidePricing={hidePricing} openModal={openModal} />
       <Validated />
       <Logos />
       <WhyChange />
@@ -57,8 +58,9 @@ export default function Home() {
       <Differentiation />
       <UseCases />
       <Testimonial />
-      <CTA />
+      <CTA openModal={openModal} />
       <Footer />
+      <ContactModal isOpen={modalOpen} onClose={closeModal} theme={modalTheme} />
     </>
   );
 }
