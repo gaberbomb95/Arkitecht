@@ -480,9 +480,16 @@ export default function HeroSection({ isPricing, showPricing, hidePricing, openM
         <div className="keyboard-wrap" id="keyboard" ref={keyboardRef}>
           {/* Mouse */}
           <div className="mouse-wrap" id="mouseWrap">
+            <div className="mouse-sensor" />
             <div className="mouse-body">
               <div className="mouse-scroll" />
               <div className="mouse-divider" />
+              <div className="mouse-thumb-grip">
+                <div className="mouse-side-btn" />
+                <div className="mouse-side-btn" />
+              </div>
+              <div className="mouse-thumb-rest" />
+              <div className="mouse-dpi-light" />
             </div>
           </div>
 
